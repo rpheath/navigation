@@ -13,7 +13,7 @@ module RPH
       
       def item(key, options = {})
         # only support one level of nesting (the action-level)
-        raise InvalkeyBlock, InvalkeyBlock.message if block_given?
+        raise InvalidBlock, InvalidBlock.message if block_given?
         MENUS[@menu][@parent][SUBMENU].merge!(normalize(key) => options)
       end
     end
