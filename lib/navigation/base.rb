@@ -6,7 +6,7 @@ module RPH
       # keep everything in the same format
       # for setting/getting hash values
       def normalize(val)
-        val.to_s.underscore
+        val.to_s.underscore.sub(/_controller$/, '')
       end
     end
   end
