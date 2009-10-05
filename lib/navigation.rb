@@ -14,7 +14,7 @@ module RPH
       #  <%= navigation :primary %>
       #
       def navigation(key, options = {})
-        options.merge!(:template => self)
+        options.merge!(:view => self)
         navigator = Navigator.new(key, options)
         content_tag(:ul, navigator.links, options.merge!(:class => navigator.css_class))
       end

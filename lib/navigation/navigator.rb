@@ -1,7 +1,7 @@
 module RPH
   module Navigation
     class Navigator < Base
-      attr_reader :name, :template
+      attr_reader :name, :view
       
       def initialize(name, options)
         # must have menu definitions at this point
@@ -11,9 +11,9 @@ module RPH
         # menu name/key must exist in the current menu definitions
         raise InvalidMenuIdentifier, InvalidMenuIdentifier.message unless valid?(name)
         
-        # need a reference of the template/view
+        # need a reference of the view/view
         # for building out the HTML
-        @template = options.delete(:template)
+        @view = options.delete(:view)
         
         # initialization
         @name, @options = normalize(name), options
@@ -56,16 +56,16 @@ module RPH
           text, path, attrs = self.disect(item, opts)
           subnav = construct_html(menu[item][SUBMENU], true).to_s
           attrs.merge!(:class => [attrs[:class], self.current_css(item, nested)].compact.join(' '))
-          items << self.template.content_tag(:li, self.template.link_to(text, path) + subnav, attrs)
+          items << self.view.content_tag(:li, self.view.link_to(text, path) + subnav, attrs)
         end
         
-        nested ? self.template.content_tag(:ul, links, :class => 'sub-navigation') : links
+        nested ? self.view.content_tag(:ul, links, :class => 'sub-navigation') : links
       end
       
       # determines if the menu item matches the current section
       # (considers both levels: controller and action)
       def current_css(item, nested = false)
-        name = nested || @action_level ? self.template.action_name : self.template.controller_name
+        name = nested || @action_level ? self.view.action_name : self.view.controller_name
         'current' if normalize(name) == normalize(item)
       end
       
@@ -74,7 +74,7 @@ module RPH
       def disect(item, opts)
         opts = HashWithIndifferentAccess.new(opts).symbolize_keys!
 
-        path = self.template.send(opts.delete(:path) || "#{item.to_s.underscore}_path" || :root_path)
+        path = self.view.send(opts.delete(:path) || "#{item.to_s.underscore}_path" || :root_path)
         text = opts.delete(:text) || item.to_s.titleize
         attrs = opts.except(SUBMENU)
         
