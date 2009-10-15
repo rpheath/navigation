@@ -17,9 +17,11 @@ module RPH
       
       # accepts a name/key, and yields 
       # a Menu instance to the block
-      def define(name, action_level = false)
+      def define(*args)
+        name, options = args.first, args.extract_options!
+        
         raise InvalidMenuDefinition, InvalidMenuDefinition.message if name.blank?
-        yield Menu.new(normalize(name), action_level)
+        yield Menu.new(normalize(name), options)
       end
     end
   end

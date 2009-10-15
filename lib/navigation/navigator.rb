@@ -20,7 +20,15 @@ module RPH
         
         # support building separate menus for actions,
         # without forcing it to be nested
-        @action_level = MENUS[@name].delete(:action_level)
+        @action_menu = MENUS[@name][:action_menu]
+        
+        # menus can be shown/hidden based on
+        # conditions by passing a Proc object
+        #  Ex: 
+        #   navigation.define :primary, :if => Proc.new { |c| c.logged_in? } do |menu|
+        #     ...
+        #   end
+        @proc = MENUS[@name][:if]
       end
       
       # the css class of the
@@ -34,11 +42,22 @@ module RPH
       def links
         construct_html(self.items)
       end
+      
+      def allowed?
+        execute_proc @proc
+      end
 
     protected
+      # calls a proc and hands it 
+      # the controller isntance
+      def execute_proc(proc)
+        return true unless proc.is_a?(Proc)
+        proc.call(self.view.controller)
+      end
+      
       # convenience method
       def items
-        MENUS[@name]
+        MENUS[@name].except(:action_menu, :if)
       end
       
       # checks to make sure the menu
@@ -53,6 +72,8 @@ module RPH
         return if menu.blank?
         
         links = menu.inject([]) do |items, (item, opts)|
+          next(items) unless execute_proc(opts[:if])
+          
           text, path, attrs = self.disect(item, opts)
           subnav = construct_html(menu[item][SUBMENU], true).to_s
           attrs.merge!(:class => [attrs[:class], self.current_css(item, nested)].compact.join(' '))
@@ -65,7 +86,7 @@ module RPH
       # determines if the menu item matches the current section
       # (considers both levels: controller and action)
       def current_css(item, nested = false)
-        name = nested || @action_level ? self.view.action_name : self.view.controller_name
+        name = nested || @action_menu ? self.view.action_name : self.view.controller_name
         'current' if normalize(name) == normalize(item)
       end
       
@@ -76,7 +97,7 @@ module RPH
 
         path = self.view.send(opts.delete(:path) || "#{item.to_s.underscore}_path" || :root_path)
         text = opts.delete(:text) || item.to_s.titleize
-        attrs = opts.except(SUBMENU)
+        attrs = opts.except(SUBMENU, :if)
         
         [text, path, attrs]
       end

@@ -16,7 +16,9 @@ module RPH
       def navigation(key, options = {})
         options.merge!(:view => self)
         navigator = Navigator.new(key, options)
-        content_tag(:ul, navigator.links, options.merge!(:class => navigator.css_class))
+        if navigator.allowed?
+          content_tag(:ul, navigator.links, options.merge!(:class => navigator.css_class))
+        end
       end
     end
   end

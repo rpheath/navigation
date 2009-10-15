@@ -3,9 +3,10 @@ module RPH
     # handles adding items 
     # to a specific menu
     class Menu < Base
-      def initialize(name, action_level)
+      def initialize(name, options = {})
         @name = name
-        (MENUS[@name] = ActiveSupport::OrderedHash.new).merge!(:action_level => action_level)
+        (MENUS[@name] = ActiveSupport::OrderedHash.new).merge!(
+          :action_menu => options[:action_menu], :if => options[:if])
       end
       
       def item(key, options = {}, &block)
