@@ -1,1 +1,3 @@
 h1. Navigation Plugin for Rails
+
+This is an experiment with a different way to create navigation menus in Rails. It supports navigation at the controller level, as well as the action level. Also supports nested navigation menus.
