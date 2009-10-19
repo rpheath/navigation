@@ -49,10 +49,10 @@ module RPH
 
     protected
       # calls a proc and hands it 
-      # the controller isntance
+      # the view/template instance
       def execute_proc(proc)
         return true unless proc.is_a?(Proc)
-        proc.call(self.view.controller)
+        proc.call(self.view)
       end
       
       # convenience method
