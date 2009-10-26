@@ -1,3 +1,112 @@
 h1. Navigation Plugin for Rails
 
-This is an experiment with a different way to create navigation menus in Rails. It supports navigation at the controller level, as well as the action level. Also supports nested navigation menus.
+This is an experiment with a different way to create navigation menus in Rails. It supports navigation at the controller level, as well as the action level (nested or non-nested).
+
+h2. Initialization
+
+Probably the most fundamental difference with this plugin and most navigation plugins is this one requires the menus to be pre-defined before rendering. Here's an example of a typical menu (in @config/initializers/navigation.rb@):
+
+<pre><code>RPH::Navigation::Builder.config do |navigation|
+  navigation.define :primary do |menu|
+    menu.item :home, :text => 'Welcome'
+    menu.item :about, :path => :about_us_path
+    menu.item :contact, :text => 'Contact Us'
+  end
+end
+</code></pre>
+
+A caveat to this approach is that you don't have access to the named route helpers in an initializer, so you have to pass them as either a symbol or a string and they'll be eval'd at the right time. If you don't pass a route, it will try to do @"#{menu_item_name}_path"@. So the "home" item in the above example would get a path of "home_path" since there was no @:path@ option. And if "home_path" doesn't exist, the fallback is "root_path".
+
+h2. Rendering the Menu
+
+Once you have your menu(s) defined, it's pretty easy to render your menu:
+
+<pre><code><%= navigation :primary %></code></pre>
+
+You just have to pass the key of the name you gave it when it was defined. This is good for a number of reasons, but an added bonus is the ability to define and render different menus depending on who is logged in, for example.
+
+<pre><code><%= navigation current_user.menu %></code></pre>
+
+All of the logic related to roles/permissions could be abstracted into a @menu()@ method. Or if you're funny about sticking that logic in a model, you could call a helper or something. But you get the idea: key-based menu identification.
+
+h2. Tips & Advanced Features
+
+There are some additional things that you may want to know about this plugin, so keep reading if you're not satisfied yet.
+
+h3. Passing a controller instance...
+
+When I'm writing code to determine the "current tab" stuff, I basically just want this: when any action inside of the @HomeController@ gets rendered, highlight the "home" tab as the current. So why not allow the ability to pass the controller instance in the menu definition?
+
+<pre><code>RPH::Navigation::Builder.config do |navigation|
+  navigation.define :primary do |menu|
+    menu.item HomeController, :text => 'Welcome'
+    menu.item AboutController, :path => :about_us_path
+    menu.item ContactController, :text => 'Contact Us'
+  end
+end
+</code></pre>
+
+No more guessing games and no more @current_tab :home@ in your controllers.
+
+h3. Rule-based navigation menus...
+
+Sometimes you only want to show a menu based on a some condition. It happens. Just pass an @:if@ condition to the menu definition:
+
+<pre><code>RPH::Navigation::Builder.config do |navigation|
+  navigation.define :primary, :if => Proc.new { |view| view.allowed_to_show_menu? } do |menu|
+    # ...
+  end
+end
+</code></pre>
+
+You will automatically be handed a reference to the template/view so you can call any method that @ActionView@ is aware of (Note: if you need the controller, just use @view.controller@).
+
+h3. Rule-based navigation menu items...
+
+And sometimes you always want the menu present, but one or two of the tabs should only show up for certain reasons. Well, the @:if@ option works exactly the same for menu items:
+
+<pre><code>RPH::Navigation::Builder.config do |navigation|
+  navigation.define :primary do |menu|
+    menu.item :home, :text => 'Welcome'
+    menu.item :about, :path => :about_us_path
+    menu.item :admin, :if => Proc.new { |view| view.logged_in_as_admin? }
+  end
+end
+</code></pre>
+
+h3. Sub-menu navigation...
+
+As we all know, a controller is made up of actions. And sometimes you want to not only provide navigation around your controllers, but also around the actions within a controller. Well, it's a pretty simple concept and now has a pretty simple solution:
+
+<pre><code>RPH::Navigation::Builder.config do |navigation|
+  navigation.define :primary do |menu|
+    menu.item :home, :text => 'Welcome' do |sub_menu|
+      sub_menu.item :index, :text => 'Dashboard', :path => :home_path
+      sub_menu.item :friends, :path => :friends_path
+    end
+    menu.item :about, :path => :about_us_path
+    menu.item :contact, :text => 'Contact Us'
+  end
+end
+</code></pre>
+
+If you pass a block to any of the menu items, the plugin will automatically know that this is a sub-menu and will render a completely new menu underneath of the parent menu item. And it's "current tab" will be based on the @action_name@ instead of the @controller_name@. Remember, this is if you want a *nested* action-level menu.
+
+h3. Action-level navigation...
+
+If you want to build a separate menu for the actions of a controller, but you _don't_ want to nest it under a parent menu item, you can tell the builder that during the definition by passing @action_menu => true@:
+
+<pre><code>RPH::Navigation::Builder.config do |navigation|
+  navigation.define :users, :action_menu => true do |menu|
+    # ...
+  end
+end
+</code></pre>
+
+h3. That's all!
+
+Feedback is welcome, and as always, feel free to fork and improve :-)
+
+h2. License
+
+Copyright (c) 2009 Ryan Heath MIT
