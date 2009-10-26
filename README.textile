@@ -1,10 +1,10 @@
 h1. Navigation Plugin for Rails
 
-This is an experiment with a different way to create navigation menus in Rails. It supports navigation at the controller level, as well as the action level (nested or non-nested).
+This is an experiment with a different way to create navigation menus in Rails. It supports navigation at the controller level, as well as the action level (for both nested or non-nested menus).
 
 h2. Initialization
 
-Probably the most fundamental difference with this plugin and most navigation plugins is this one requires the menus to be pre-defined before rendering. Here's an example of a typical menu (in @config/initializers/navigation.rb@):
+Probably the most fundamental difference with this plugin and most navigation plugins is this one requires the menus to be pre-defined before rendering. Here's an example of a typical menu definition (in @config/initializers/navigation.rb@):
 
 <pre><code>RPH::Navigation::Builder.config do |navigation|
   navigation.define :primary do |menu|
@@ -15,11 +15,11 @@ Probably the most fundamental difference with this plugin and most navigation pl
 end
 </code></pre>
 
-A caveat to this approach is that you don't have access to the named route helpers in an initializer, so you have to pass them as either a symbol or a string and they'll be eval'd at the right time. If you don't pass a route, it will try to do @"#{menu_item_name}_path"@. So the "home" item in the above example would get a path of "home_path" since there was no @:path@ option. And if "home_path" doesn't exist, the fallback is "root_path".
+A caveat to this approach is that you don't have access to the named route helpers in an initializer, so you have to pass them as either a symbol or a string and they'll be eval'd at the right time. If you don't pass a route (i.e. the @:path@ option), it will try to do @"#{menu_item_name}_path"@. So the "home" item in the above example would get a path of "home_path" since there was no @:path@ option. And if "home_path" doesn't exist, the fallback is "root_path".
 
 h2. Rendering the Menu
 
-Once you have your menu(s) defined, it's pretty easy to render your menu:
+Once you have your menu(s) defined, it's pretty easy to render it:
 
 <pre><code><%= navigation :primary %></code></pre>
 
@@ -63,7 +63,7 @@ You will automatically be handed a reference to the template/view so you can cal
 
 h3. Rule-based navigation menu items...
 
-And sometimes you always want the menu present, but one or two of the tabs should only show up for certain reasons. Well, the @:if@ option works exactly the same for menu items:
+And sometimes you always want the menu present, but one or two of the tabs should only show up for certain reasons. Well, the @:if@ option works exactly the same for menu items as well:
 
 <pre><code>RPH::Navigation::Builder.config do |navigation|
   navigation.define :primary do |menu|
@@ -76,7 +76,7 @@ end
 
 h3. Sub-menu navigation...
 
-As we all know, a controller is made up of actions. And sometimes you want to not only provide navigation around your controllers, but also around the actions within a controller. Well, it's a pretty simple concept and now has a pretty simple solution:
+As we all know, a controller is made up of actions. And sometimes you want to not only provide navigation around your controllers, but also around the actions within a controller. Well, it's a pretty simple concept and now has a pretty simple solution. Just pass a block to the menu item:
 
 <pre><code>RPH::Navigation::Builder.config do |navigation|
   navigation.define :primary do |menu|
@@ -94,7 +94,7 @@ If you pass a block to any of the menu items, the plugin will automatically know
 
 h3. Action-level navigation...
 
-If you want to build a separate menu for the actions of a controller, but you _don't_ want to nest it under a parent menu item, you can tell the builder that during the definition by passing @action_menu => true@:
+If you want to build a separate menu for the actions of a controller, but you _don't_ want to nest it under a parent menu item, you can tell the builder that during the definition by passing @:action_menu => true@:
 
 <pre><code>RPH::Navigation::Builder.config do |navigation|
   navigation.define :users, :action_menu => true do |menu|
@@ -103,10 +103,27 @@ If you want to build a separate menu for the actions of a controller, but you _d
 end
 </code></pre>
 
+h3. Multiple menus...
+
+This isn't a _feature_ per se, but one of the great outcomes of this experiment is the ability to keep all of your menu definitions in a single ruby file and in a single builder...
+
+<pre><code>RPH::Navigation::Builder.config do |navigation|
+  navigation.define :public do |menu|
+    # ...
+  end
+  
+  navigation.define :authenticated do |menu|
+    # ...
+  end
+  
+  navigation.define :administrator do |menu|
+    # ...
+  end
+end
+</code></pre>
+
+Having key-based menu identification works out really well for additional menu logic and keeping your views clean.
+
 h3. That's all!
 
 Feedback is welcome, and as always, feel free to fork and improve :-)
-
-h2. License
-
-Copyright (c) 2009 Ryan Heath MIT
