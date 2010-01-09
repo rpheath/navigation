@@ -124,6 +124,38 @@ end
 
 Having key-based menu identification works out really well for additional menu logic and keeping your views clean.
 
+h3. Helper-based custom menu text
+
+Sometimes the text on one of your menu items depend on some conditions. Like, for instance, maybe an inbox link might also show the number of new messages? You could define a helper like so:
+
+<pre><code>
+def inbox_menu_text
+  ["Inbox", content_tag(:span, current_user.messages.unread.size]].join(" ")
+end
+</code></pre>
+
+Then you can refer to that helper in the navigation definition using a Proc.
+
+<pre><code>
+navigation.define :authenticated do |menu|
+  menu.item :messages, :text => Proc.new { |view| view.inbox_menu_text }
+end
+</code></pre>
+
+This works for both controller and action-based menus.
+
+h3. Manually overriding current sections
+
+This doesn't work for action-based menus, but in controllers you can override the current section via the @current_section()@ method. For example:
+
+<pre><code>
+class Admin::UsersController < ActionController::Base
+  current_section :administrator
+end
+</pre></code>
+
+This is really only useful for controllers that don't have an explicit menu item, but you would still like one of the sections to e highlighted.
+
 h3. That's all!
 
 Feedback is welcome, and as always, feel free to fork and improve :-)
