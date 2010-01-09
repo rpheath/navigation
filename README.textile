@@ -151,7 +151,7 @@ This doesn't work for action-based menus, but in controllers you can override th
 end
 </code></pre>
 
-This is really only useful for controllers that don't have an explicit menu item, but you would still like one of the sections to e highlighted.
+This is really only useful for controllers that don't have an explicit menu item, but you would still like one of the sections to be highlighted.
 
 h3. That's all!
 
