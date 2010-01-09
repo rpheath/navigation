@@ -149,7 +149,7 @@ This doesn't work for action-based menus, but in controllers you can override th
 <pre><code>class Admin::UsersController < ActionController::Base
   current_section :administrator
 end
-</pre></code>
+</code></pre>
 
 This is really only useful for controllers that don't have an explicit menu item, but you would still like one of the sections to e highlighted.
 
