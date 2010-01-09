@@ -97,6 +97,7 @@ module RPH
 
         path = self.view.send(opts.delete(:path) || "#{item.to_s.underscore}_path" || :root_path)
         text = opts.delete(:text) || item.to_s.titleize
+        text = execute_proc(text) if text.is_a?(Proc)
         attrs = opts.except(SUBMENU, :if)
         
         [text, path, attrs]
