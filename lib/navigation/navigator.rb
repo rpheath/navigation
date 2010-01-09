@@ -86,7 +86,13 @@ module RPH
       # determines if the menu item matches the current section
       # (considers both levels: controller and action)
       def current_css(item, nested = false)
-        name = nested || @action_menu ? self.view.action_name : self.view.controller_name
+        name = if (nested || @action_menu)
+          self.view.action_name 
+        else
+          (controller_override = self.view.controller.class.current_section).blank? ? 
+            self.view.controller_name : controller_override
+        end
+        
         'current' if normalize(name) == normalize(item)
       end
       
