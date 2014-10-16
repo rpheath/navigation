@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), 'test_helper')
 
-Nav = Class.new(RPH::Navigation::Navigator)
+Nav = Class.new(Navigation::Navigator)
 
 class NavigationTest < ActiveSupport::TestCase
   def setup

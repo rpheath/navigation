@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'test/unit'
 require 'action_view'
 require 'active_support'
@@ -48,7 +47,7 @@ class ActionView::Base
   end
 end
 
-RPH::Navigation::Builder.config do |navigation|
+Navigation::Builder.config do |navigation|
   navigation.define :basic do |menu|
     menu.item :home
     menu.item :features
@@ -56,13 +55,13 @@ RPH::Navigation::Builder.config do |navigation|
   end
 end
 
-RPH::Navigation::Builder.config do |navigation|
+Navigation::Builder.config do |navigation|
   navigation.define :menu_with_proc, :if => Proc.new { |view| view.show_menu? } do |menu|
     menu.item :home
   end
 end
 
-RPH::Navigation::Builder.config do |navigation|
+Navigation::Builder.config do |navigation|
   navigation.define :menu_with_submenu do |menu|
     menu.item :home do |sub|
       sub.item :index, :path => :root_path
